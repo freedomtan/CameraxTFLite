@@ -2,9 +2,11 @@ package com.mediatek.cameraxtflite
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Matrix
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Size
+import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
 import android.widget.Toast
@@ -81,7 +83,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTransform() {
-        // TODO: Implement camera view transformations
+        val matrix = Matrix()
+
+        // Compute the center of the camera view
+        val centerX = cameraView.width / 2f
+        val centerY = cameraView.height / 2f
+
+        // Correct preview output to account for display rotation
+        val rotationDegrees = when(cameraView.display.rotation) {
+            Surface.ROTATION_0 -> 0
+            Surface.ROTATION_90 -> 90
+            Surface.ROTATION_180 -> 180
+            Surface.ROTATION_270 -> 270
+            else -> return
+        }
+        matrix.postRotate(-rotationDegrees.toFloat(), centerX, centerY)
+
+        // Finally, apply transformations to our TextureView
+        cameraView.setTransform(matrix)
     }
 
     /**
