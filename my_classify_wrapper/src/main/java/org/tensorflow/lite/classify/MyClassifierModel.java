@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.Tensor;
 import org.tensorflow.lite.Tensor.QuantizationParams;
 import org.tensorflow.lite.support.common.FileUtil;
 import org.tensorflow.lite.support.common.TensorProcessor;
@@ -122,9 +123,12 @@ public class MyClassifierModel {
 
         public Metadata(ByteBuffer buffer, Model model) throws IOException {
             MetadataExtractor extractor = new MetadataExtractor(buffer);
-            imageShape = extractor.getInputTensorShape(0);
-            imageDataType = extractor.getInputTensorType(0);
-            imageQuantizationParams = extractor.getInputTensorQuantizationParams(0);
+            // imageShape = extractor.getInputTensorShape(0);
+            // imageDataType = extractor.getInputTensorType(0);
+            Tensor imageTensor = model.getInputTensor(0);
+            imageShape = imageTensor.shape();
+            imageDataType = imageTensor.dataType();
+            imageQuantizationParams = imageTensor.quantizationParams();
             NormalizationOptions imageNormalizationOptions =
                     (NormalizationOptions) extractor.getInputTensorMetadata(0).processUnits(0).options(new NormalizationOptions());
             FloatBuffer imageMeanBuffer = imageNormalizationOptions.meanAsByteBuffer().asFloatBuffer();
@@ -133,9 +137,10 @@ public class MyClassifierModel {
             FloatBuffer imageStddevBuffer = imageNormalizationOptions.stdAsByteBuffer().asFloatBuffer();
             imageStddev = new float[imageStddevBuffer.limit()];
             imageStddevBuffer.get(imageStddev);
-            probabilityShape = model.getOutputTensorShape(0);
-            probabilityDataType = extractor.getOutputTensorType(0);
-            probabilityQuantizationParams = extractor.getOutputTensorQuantizationParams(0);
+            Tensor probabilityTensor = model.getOutputTensor(0);
+            probabilityShape = probabilityTensor.shape();
+            probabilityDataType = probabilityTensor.dataType();
+            probabilityQuantizationParams = probabilityTensor.quantizationParams();
             String probabilityLabelsFileName =
                     extractor.getOutputTensorMetadata(0).associatedFiles(0).name();
             probabilityLabels = FileUtil.loadLabels(extractor.getAssociatedFile(probabilityLabelsFileName));
@@ -217,9 +222,13 @@ public class MyClassifierModel {
      * @throws IOException if an I/O error occurs when loading the tflite model.
      */
     public MyClassifierModel(Context context, String modelPath, Device device, int numThreads) throws IOException {
-        model = new Model.Builder(context, modelPath).setDevice(device).setNumThreads(numThreads).build();
-        metadata = new Metadata(model.getData(), model);
+        // model = new Model.Builder(context, modelPath).setDevice(device).setNumThreads(numThreads).build();
+        // model = Model.createModel(context, modelPath).setDevice(device).setNumThreads(numThreads).build();
+        // Model.Options.Builder b = new Model.Options.Builder();
+        // b.setDevice(device).setNumThreads(numThreads);
+        model = Model.createModel(context, modelPath, (new Model.Options.Builder()).setDevice(device).setNumThreads(numThreads).build());
 
+        metadata = new Metadata(model.getData(), model);
         ImageProcessor.Builder imagePreprocessorBuilder = new ImageProcessor.Builder()
                 .add(new ResizeOp(
                         metadata.getImageShape()[1],

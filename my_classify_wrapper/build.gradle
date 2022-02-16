@@ -1,17 +1,17 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:7.1.1'
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         flatDir {
             dirs 'libs'
         }
@@ -21,11 +21,10 @@ allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 31
     defaultConfig {
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion 28
+        targetSdkVersion 31
     }
     aaptOptions {
         noCompress "tflite"
@@ -39,26 +38,10 @@ android {
     }
 }
 
-configurations {
-    libMetadata
-}
-
 dependencies {
-    libMetadata 'org.tensorflow:tensorflow-lite-support:0.0.0-experimental-metadata-monolithic'
-}
-
-task downloadLibs(type: Sync) {
-    from configurations.libMetadata
-    into "$buildDir/libs"
-    rename 'tensorflow-lite-support-0.0.0-experimental-metadata-monolithic.jar', "tensorflow-lite-support-metadata.jar"
-}
-
-preBuild.dependsOn downloadLibs
-
-dependencies {
-    compileOnly 'org.checkerframework:checker-qual:2.5.8'
-    api 'org.tensorflow:tensorflow-lite:0.0.0-nightly'
-    api 'org.tensorflow:tensorflow-lite-support:0.0.0-nightly'
-    api files("$buildDir/libs/tensorflow-lite-support-metadata.jar")
-    implementation 'org.apache.commons:commons-compress:1.19'
+    api 'org.checkerframework:checker-qual:3.21.2'
+    api 'org.tensorflow:tensorflow-lite:2.8.0'
+    api 'org.tensorflow:tensorflow-lite-support:0.3.1'
+    implementation 'org.tensorflow:tensorflow-lite-metadata:0.3.1'
+    //implementation 'org.apache.commons:commons-compress:1.21'
 }

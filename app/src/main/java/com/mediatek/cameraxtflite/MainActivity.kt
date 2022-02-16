@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
             parent.removeView(cameraView)
             parent.addView(cameraView, 0)
 
-            cameraView.surfaceTexture = it.surfaceTexture
+            cameraView.setSurfaceTexture(it.surfaceTexture)
             updateTransform()
         }
 
@@ -187,26 +187,24 @@ class MainActivity : AppCompatActivity() {
             val myImageClassifier =
                 MyClassifierModel(mainActivity.getApplicationContext(), Model.Device.NNAPI, 4)
 
-            var inputs = myImageClassifier.createInputs()
+            val inputs = myImageClassifier.createInputs()
             inputs.loadImage(bitmap)
 
             val startTimestamp = System.nanoTime()
-            var outputs = myImageClassifier.run(inputs)
+            val outputs = myImageClassifier.run(inputs)
             val stopTimestamp = System.nanoTime()
 
-            var labeledProbability = outputs.getProbability()
+            val labeledProbability = outputs.getProbability()
 
             var maxEntry: Map.Entry<String, Float>? = null
             for (entry in labeledProbability.entries) {
                 if (maxEntry == null || entry.value.compareTo(maxEntry.value) > 0) {
-                    maxEntry = entry;
+                    maxEntry = entry
                 }
             }
 
             mainActivity.runOnUiThread(Runnable {
                 mainActivity.top1Text.text = "top-1: " + maxEntry.toString()
-            })
-            mainActivity.runOnUiThread(Runnable {
                 mainActivity.latencyText.text =
                     "latency: " + (stopTimestamp - startTimestamp) / 1000000.0 + " ms"
             })
