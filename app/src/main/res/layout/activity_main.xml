@@ -6,25 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextureView
+    <androidx.camera.view.PreviewView
         android:id="@+id/camera_view"
-        android:layout_width="320dp"
-        android:layout_height="480dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.063" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    <EditText
+    <TextView
         android:id="@+id/latency"
         android:layout_width="320dp"
         android:layout_height="40dp"
         android:layout_marginStart="44dp"
         android:layout_marginBottom="180dp"
         android:ems="10"
-        android:inputType="number"
+        android:inputType=""
+        android:autofillHints="number"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -35,7 +30,6 @@
         android:layout_marginStart="45dp"
         android:layout_marginEnd="46dp"
         android:layout_marginBottom="112dp"
-        android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
