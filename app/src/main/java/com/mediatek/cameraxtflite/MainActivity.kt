@@ -25,6 +25,8 @@ private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
     private var imageCapture: ImageCapture? = null
+    private var top1String: String? = null
+    private var latencyString: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +43,8 @@ class MainActivity : AppCompatActivity() {
 
         latencyText = viewBinding.latency
         top1Text = viewBinding.top1
+        top1String = getString(R.string.top_1)
+        latencyString = getString(R.string.latency)
     }
 
 
@@ -124,12 +128,16 @@ class MainActivity : AppCompatActivity() {
             }
 
             mainActivity.runOnUiThread {
-                mainActivity.top1Text.text = "top-1: " + maxEntry.toString()
+                mainActivity.top1Text.text =
+                    String.format(mainActivity.top1String!!, maxEntry.toString())
                 mainActivity.latencyText.text =
-                    "latency: " + (stopTimestamp - startTimestamp) / 1000000.0 + " ms"
+                    String.format(
+                        mainActivity.latencyString!!,
+                        (stopTimestamp - startTimestamp) / 1000000.0
+                    )
             }
 
             image.close()
-
         }
+    }
 }

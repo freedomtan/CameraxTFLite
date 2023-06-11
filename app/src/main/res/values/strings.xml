@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CameraxTFLite</string>
+    <string name="top_1">latency: %1$s</string>
+    <string name="latency">latency: %1$f ms</string>
 </resources>
