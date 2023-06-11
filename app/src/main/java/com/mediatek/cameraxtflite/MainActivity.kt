@@ -19,36 +19,8 @@ import org.tensorflow.lite.classify.MyClassifierModel
 import org.tensorflow.lite.support.model.Model
 import java.util.concurrent.Executors
 
-// This is an arbitrary number we are using to keep track of the permission
-// request. Where an app has multiple context for requesting permission,
-// this can help differentiate the different contexts.
-private const val REQUEST_CODE_PERMISSIONS = 10
-
 // This is an array of all the permission specified in the manifest.
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
-/*
-fun Image.toBitmap(): Bitmap {
-    val yBuffer = planes[0].buffer // Y
-    val uBuffer = planes[1].buffer // U
-    val vBuffer = planes[2].buffer // V
-
-    val ySize = yBuffer.remaining()
-    val uSize = uBuffer.remaining()
-    val vSize = vBuffer.remaining()
-
-    val nv21 = ByteArray(ySize + uSize + vSize)
-
-    // U and V are swapped
-    yBuffer.get(nv21, 0, ySize)
-    vBuffer.get(nv21, ySize, vSize)
-    uBuffer.get(nv21, ySize + vSize, uSize)
-
-    val yuvImage = YuvImage(nv21, ImageFormat.NV21, this.width, this.height, null)
-    val out = ByteArrayOutputStream()
-    yuvImage.compressToJpeg(Rect(0, 0, yuvImage.width, yuvImage.height), 50, out)
-    val imageBytes = out.toByteArray()
-    return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-}*/
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
@@ -56,39 +28,23 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        // cameraView = findViewById(R.id.camera_view)
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
         // Request camera permissions
         if (allPermissionsGranted()) {
-            // cameraView.post { startCamera() }
             startCamera()
         } else {
-            /*
-                ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )*/
             requestPermissions()
         }
 
-        /*
-        // Every time the provided texture view changes, recompute layout
-        cameraView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            updateTransform()
-        }*/
-
-        latencyText = findViewById(R.id.latency)
-        top1Text = findViewById(R.id.top1)
+        latencyText = viewBinding.latency
+        top1Text = viewBinding.top1
     }
 
-    // Add this after onCreate
 
     private val executor = Executors.newSingleThreadExecutor()
-
-    // private lateinit var cameraView: TextureView
     private lateinit var latencyText: TextView
     private lateinit var top1Text: TextView
 
@@ -149,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         override fun analyze(image: ImageProxy) {
             val bitmap = image.toBitmap()
             val myImageClassifier =
-                MyClassifierModel(mainActivity.getApplicationContext(), Model.Device.NNAPI, 4)
+                MyClassifierModel(mainActivity.applicationContext, Model.Device.NNAPI, 4)
 
             val inputs = myImageClassifier.createInputs()
             inputs.loadImage(bitmap)
@@ -158,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             val outputs = myImageClassifier.run(inputs)
             val stopTimestamp = System.nanoTime()
 
-            val labeledProbability = outputs.getProbability()
+            val labeledProbability = outputs.probability
 
             var maxEntry: Map.Entry<String, Float>? = null
             for (entry in labeledProbability.entries) {
@@ -167,13 +123,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            mainActivity.runOnUiThread(Runnable {
+            mainActivity.runOnUiThread {
                 mainActivity.top1Text.text = "top-1: " + maxEntry.toString()
                 mainActivity.latencyText.text =
                     "latency: " + (stopTimestamp - startTimestamp) / 1000000.0 + " ms"
-            })
+            }
 
             image.close()
+
         }
-    }
 }
